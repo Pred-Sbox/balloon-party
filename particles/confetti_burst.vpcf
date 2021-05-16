@@ -1688,6 +1688,7 @@
 	[
 		{
 			m_ChildRef = resource:"particles/smoke_burst.vpcf"
+			m_bDisableChild = true
 		},
 	]
 }
