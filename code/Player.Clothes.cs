@@ -13,7 +13,8 @@ partial class DeathmatchPlayer
 	public void Dress()
 	{
 		if ( dressed )
-			dressed = true;
+			return;
+		dressed = true;
 
 		hat = new ModelEntity();
 		hat.SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
