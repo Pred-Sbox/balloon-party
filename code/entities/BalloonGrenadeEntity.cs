@@ -20,10 +20,13 @@ namespace balloonparty.entities
 		public float ExplosionForce => 300f;
 		public float GravityScale => 0.5f;
 		[Net]
-		private TimeSince timeAlive { get; set; }
-		CancellationTokenSource _cancellationTokenSource { get; set; }
-
+		private TimeSince timeSince { get; set; }
+		[Net]
+		private float timeAlive { get; set; }
+		[Net]
 		private bool _isExploding { get; set; }
+		[Net]
+		private bool _timerStarted { get; set; }
 		private Particles trail { get; set; }
 		static SoundEvent ExplodeSound = new( "sounds/balloon_pop_cute.vsnd" )
 		{
@@ -37,9 +40,9 @@ namespace balloonparty.entities
 			LocalScale = 0.5f;
 			SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
 			RenderColor = Color.Random.ToColor32();
-			_cancellationTokenSource = new CancellationTokenSource();
 			// Maybe this makes things worse? dunno
 			Transmit = TransmitType.Always;
+			timeSince = new TimeSince();
 
 		}
 		public override void OnKilled()
@@ -54,12 +57,8 @@ namespace balloonparty.entities
 
 			PhysicsBody.GravityScale = 0;
 			_isExploding = false;
-			if ( trail != null )
-			{
-				trail.Dispose();
-				trail = null;
-			}
 			PlaySound( ExplodeSound.Name );
+			DisposeTrail();
 		}
 
 		private void ResetVelocity()
@@ -79,6 +78,7 @@ namespace balloonparty.entities
 		{
 			if ( !IsServer ) return;
 			_isExploding = true;
+			timeAlive = 0;
 			if ( delay > 0 )
 				await Task.Delay( delay );
 			if ( Debug )
@@ -102,7 +102,7 @@ namespace balloonparty.entities
 				{
 					if ( entity is Player pl )
 					{
-						var dmgInfo = DamageInfo.Explosion( WorldPos, ExplosionForce, Damage );
+						var dmgInfo = DamageInfo.Explosion( WorldPos, (ExplosionForce / 2), Damage );
 						dmgInfo.Attacker = Owner;
 						dmgInfo.HitboxIndex = 1;
 						pl.ApplyAbsoluteImpulse( (pl.WorldPos - WorldPos).Normal * ExplosionForce );
@@ -110,9 +110,7 @@ namespace balloonparty.entities
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
 					{
-						if ( bl == this || bl._isExploding ) continue;
-
-						bl._cancellationTokenSource?.Cancel();
+						if (bl._isExploding ) continue;
 						bl.Explode();
 					}
 					else if ( entity is Prop prop )
@@ -136,7 +134,7 @@ namespace balloonparty.entities
 					if ( me.PhysicsGroup != null )
 					{
 						var direction = me.PhysicsGroup.Pos - WorldPos;
-						me.PhysicsGroup.AddVelocity( direction.Normal * ExplosionForce );
+						me.PhysicsGroup.AddVelocity( direction.Normal * (ExplosionForce / 2) );
 					}
 				}
 				else if ( entity is Prop prop )
@@ -147,35 +145,9 @@ namespace balloonparty.entities
 			}
 		}
 
-		[ServerCmd( "Explode_Entity" )]
-		public static void ExplodeEntity( int entId, int delay )
-		{
-
-			Log.Info( $"Network ident: {entId}. Caller: {ConsoleSystem.Caller}" );
-			var ent = (BalloonGrenadeEntity)All.Find( e => e.NetworkIdent == entId );
-			Log.Info( $"{ent}" );
-			ent._cancellationTokenSource.Cancel();
-			ent.Explode( delay );
-			//Entity.Id
-			//var ent = (BalloonGrenadeEntity)FindByIndex( entId );
-			//ent.Explode( delay );
-		}
 
 
-		[ClientRpc]
-		private void DisposeTrail()
-		{
-			Host.AssertClient();
-			using ( Prediction.Off() )
-			{
-				if ( trail != null )
-				{
-					trail.Destroy( true );
-					trail = null;
-				}
-			}
 
-		}
 
 		[ClientRpc]
 		private void SpawnParticles()
@@ -203,26 +175,37 @@ namespace balloonparty.entities
 			}
 		}
 
-		public async void StartDestroy()
+		[ClientRpc]
+		private void DisposeTrail()
+		{
+			Host.AssertClient();
+			using ( Prediction.Off() )
+			{
+				if ( trail != null )
+				{
+					trail.Destroy( true );
+					trail.Dispose();
+					trail = null;
+				}
+			}
+		}
+
+		public void StartDestroy()
 		{
 			if ( !IsServer )
 				return;
-			_cancellationTokenSource.Dispose();
-			_cancellationTokenSource = new CancellationTokenSource();
-			await Task.Delay( TimeToLive * 1000 );
-			if ( !EnableDrawing || _cancellationTokenSource.IsCancellationRequested )
-				return;
-
-			Explode();
-
-
-
+			_timerStarted = true;
+			timeAlive = timeSince.Relative;
 		}
 
-		[Event( "frame" )]
-		public void OnFrame()
+		[Event( "server.tick" )]
+		public void OnServerTick()
 		{
-
+			if ( _timerStarted && timeSince.Relative >= timeAlive + TimeToLive )
+			{
+				_timerStarted = false;
+				Explode();
+			}
 		}
 
 		//public void OnPostPhysicsStep( float dt )
