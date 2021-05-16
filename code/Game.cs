@@ -5,7 +5,7 @@ using Sandbox;
 /// This is the heart of the gamemode. It's responsible
 /// for creating the player and stuff.
 /// </summary>
-[Library( "balloon-party", Title = "Balloon Party" )]
+[Library( "balloon_party", Title = "Balloon Party" )]
 partial class DeathmatchGame : Game
 {
 	public DeathmatchGame()

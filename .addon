@@ -16,7 +16,7 @@
 		"gamemodes":
 		[
 				{
-						"name": "balloon-party",
+						"name": "balloon_party",
 						"title": "Balloon Party",
 						"description": "Launch all the other Terry's to space to be the last Terry standing. No cake for losers!"
 				}
