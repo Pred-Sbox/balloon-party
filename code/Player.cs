@@ -37,7 +37,7 @@ partial class DeathmatchPlayer : BasePlayer
 		SupressPickupNotices = true;
 		//var grenade = new BalloonGrenade();
 		//grenade.Owner = this;
-		if(Inventory.Count() == 0 )
+		if ( Inventory.Count() == 0 )
 		{
 			Inventory.Add( new BalloonGrenade(), true );
 			// TODO: Add balloon popper
@@ -51,6 +51,7 @@ partial class DeathmatchPlayer : BasePlayer
 	public override void OnKilled()
 	{
 		base.OnKilled();
+
 		//
 		//Inventory.DropActive();
 
@@ -64,7 +65,6 @@ partial class DeathmatchPlayer : BasePlayer
 
 		Controller = null;
 		Camera = new SpectateRagdollCamera();
-
 		EnableAllCollisions = false;
 		EnableDrawing = false;
 	}

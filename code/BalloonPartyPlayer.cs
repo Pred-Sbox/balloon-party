@@ -12,18 +12,6 @@ partial class BalloonPartyPlayer : DeathmatchPlayer
 
 	public BalloonPartyPlayer() : base()
 	{
-		grenadePooler = new EntityPooler<BalloonGrenadeEntity>();
-	}
-
-	public override void OnKilled()
-	{
-		base.OnKilled();
-
-	}
-
-	public override void Respawn()
-	{
-
-		base.Respawn();
+		grenadePooler = new EntityPooler<BalloonGrenadeEntity>(2);
 	}
 }

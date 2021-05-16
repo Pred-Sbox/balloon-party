@@ -19,7 +19,17 @@ namespace balloonparty.utils
 			pooledObjects = new List<T>();
 			for ( var i = 0; i < _initialAmount; i++ )
 			{
-				pooledObjects.Add(new T());
+				var t = new T();
+				// Set the models as "inactive"
+				if ( t is ModelEntity me )
+				{
+					me.EnableDrawing = false;
+					me.EnableAllCollisions = false;
+					me.Velocity = 0;
+					me.PhysicsBody.AngularVelocity = Vector3.Zero;
+					me.PhysicsBody.GravityScale = 0;
+				}
+				pooledObjects.Add( t );
 			}
 		}
 

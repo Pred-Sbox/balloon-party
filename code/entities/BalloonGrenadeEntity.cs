@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace balloonparty.entities
 {
+	[Library("Balloon Grenade Entity")]
 	partial class BalloonGrenadeEntity : ModelEntity
 	{
 		[ServerVar( "balloon_grenade_debug" )]
@@ -19,7 +20,7 @@ namespace balloonparty.entities
 		public float ExplosionRadius => 100f;
 		public float ExplosionForce => 300f;
 		public float GravityScale => 0.5f;
-		[Net]
+		// Maybe network this ?
 		private TimeSince timeSince { get; set; }
 		[Net]
 		private float timeAlive { get; set; }
@@ -40,7 +41,6 @@ namespace balloonparty.entities
 			LocalScale = 0.5f;
 			SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
 			RenderColor = Color.Random.ToColor32();
-			// Maybe this makes things worse? dunno
 			Transmit = TransmitType.Always;
 			timeSince = new TimeSince();
 
@@ -49,8 +49,6 @@ namespace balloonparty.entities
 		{
 			if ( !PhysicsBody.IsValid() )
 				return;
-			// TODO: FREEZE PROP IN PLACE WHEN DESPAWNING
-
 			EnableDrawing = false;
 			EnableAllCollisions = false;
 			ResetVelocity();
@@ -77,6 +75,7 @@ namespace balloonparty.entities
 		public async void Explode( int delay = 0 )
 		{
 			if ( !IsServer ) return;
+			_timerStarted = false;
 			_isExploding = true;
 			timeAlive = 0;
 			if ( delay > 0 )
@@ -105,12 +104,13 @@ namespace balloonparty.entities
 						var dmgInfo = DamageInfo.Explosion( WorldPos, (ExplosionForce / 2), Damage );
 						dmgInfo.Attacker = Owner;
 						dmgInfo.HitboxIndex = 1;
+						dmgInfo.Weapon = this;
 						pl.ApplyAbsoluteImpulse( (pl.WorldPos - WorldPos).Normal * ExplosionForce );
 						pl.TakeDamage( dmgInfo );
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
 					{
-						if (bl._isExploding ) continue;
+						if ( bl._isExploding ) continue;
 						bl.Explode();
 					}
 					else if ( entity is Prop prop )
@@ -155,12 +155,10 @@ namespace balloonparty.entities
 			Host.AssertClient();
 			using ( Prediction.Off() )
 			{
-				// TODO: Object pool particles
 				var explodeParticle = Particles.Create( "particles/confetti_burst.vpcf" );
 				var pos = WorldPos;
 				explodeParticle.SetPos( 0, pos );
 				explodeParticle.Destroy( false );
-
 			}
 		}
 
@@ -195,6 +193,7 @@ namespace balloonparty.entities
 			if ( !IsServer )
 				return;
 			_timerStarted = true;
+			timeSince = 0;
 			timeAlive = timeSince.Relative;
 		}
 
@@ -203,7 +202,6 @@ namespace balloonparty.entities
 		{
 			if ( _timerStarted && timeSince.Relative >= timeAlive + TimeToLive )
 			{
-				_timerStarted = false;
 				Explode();
 			}
 		}
