@@ -831,7 +831,7 @@
 	[
 		{
 			_class = "C_OP_RenderSprites"
-			m_hTexture = resource:"textures/particle/largesmoke.vtex"
+			m_hTexture = resource:"particles/largesmoke.vtex"
 			m_vecColorScale = 
 			{
 				m_nType = "PVEC_TYPE_LITERAL_COLOR"
