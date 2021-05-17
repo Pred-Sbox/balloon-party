@@ -14,7 +14,7 @@ namespace balloonparty.weapons
 		public override float PrimaryRate => 15f;
 		public override float SecondaryRate => 15f;
 		static readonly SoundEvent AttackSound = new SoundEvent( "sounds/swoosh01.vsnd" );
-		
+
 		public TimeSince TimeSinceDischarge { get; set; }
 		private float _primaryForce => 1000f;
 		private float _secondaryForce => 400f;
@@ -28,7 +28,7 @@ namespace balloonparty.weapons
 
 		public override bool CanPrimaryAttack()
 		{
-			if ( !Owner.Input.Pressed( InputButton.Attack1 ) )
+			if ( !Owner.Input.Pressed( InputButton.Attack1 ) || Owner.Health <= 0 )
 				return false;
 
 			return base.CanPrimaryAttack();
@@ -36,7 +36,7 @@ namespace balloonparty.weapons
 
 		public override bool CanSecondaryAttack()
 		{
-			if ( !Owner.Input.Pressed( InputButton.Attack2 ) )
+			if ( !Owner.Input.Pressed( InputButton.Attack2 ) || Owner.Health <= 0 )
 				return false;
 			return base.CanSecondaryAttack();
 		}
@@ -80,8 +80,8 @@ namespace balloonparty.weapons
 					ent.WorldPos = Owner.EyePos + Owner.EyeRot.Forward * 50;
 					ent.WorldRot = Owner.EyeRot;
 					ent.AttachTrail();
-					ent.RenderColor = Color.Random;
 				}
+				ent.RenderColor = Color.Random;
 				ent.PhysicsBody.GravityScale = ent.GravityScale;
 				ent.EnableAllCollisions = true;
 				ent.EnableDrawing = true;
@@ -124,7 +124,7 @@ namespace balloonparty.weapons
 			return;
 		}
 
-		
+
 		public override void OnPlayerControlTick( Player owner )
 		{
 			base.OnPlayerControlTick( owner );
