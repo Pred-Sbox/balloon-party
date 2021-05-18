@@ -31,7 +31,7 @@ partial class SMG : BaseDmWeapon
 			return;
 		}
 
-		Owner.SetAnimParam( "b_attack", true );
+		ViewModelEntity?.SetAnimParam( "b_attack", true );
 
 		//
 		// Tell the clients to play the shoot effects
@@ -59,7 +59,7 @@ partial class SMG : BaseDmWeapon
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 		Particles.Create( "particles/pistol_ejectbrass.vpcf", EffectEntity, "ejection_point" );
 
-		if ( Owner == Player.Local )
+		if ( Owner == Local.Client )
 		{
 			new Sandbox.ScreenShake.Perlin(0.5f, 4.0f, 1.0f, 0.5f);
 		}
@@ -68,9 +68,9 @@ partial class SMG : BaseDmWeapon
 		CrosshairPanel?.OnEvent( "fire" );
 	}
 
-	public override void TickPlayerAnimator( PlayerAnimator anim )
+	public override void SimulateAnimator( PawnAnimator anim )
 	{
-		anim.SetParam( "holdtype", 2 ); // TODO this is shit
+				anim.SetParam( "holdtype", 2 ); // TODO this is shit
 		anim.SetParam( "aimat_weight", 1.0f );
 	}
 

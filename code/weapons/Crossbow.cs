@@ -1,8 +1,8 @@
 ﻿using Sandbox;
 
 [Library( "dm_crossbow", Title = "Crossbow" )]
-partial class Crossbow : BaseDmWeapon, IPlayerCamera, IPlayerInput
-{ 
+partial class Crossbow : BaseDmWeapon
+{
 	public override string ViewModelPath => "weapons/rust_crossbow/v_rust_crossbow.vmdl";
 
 	public override float PrimaryRate => 1;
@@ -31,19 +31,19 @@ partial class Crossbow : BaseDmWeapon, IPlayerCamera, IPlayerInput
 		ShootEffects();
 
 		if ( IsServer )
-		using ( Prediction.Off() )
-		{
-			var bolt = new CrossbowBolt();
-			bolt.WorldPos = Owner.EyePos;
-			bolt.WorldRot = Owner.EyeRot;
-			bolt.Owner = Owner;
-			bolt.Velocity = Owner.EyeRot.Forward * 100;
-		}
+			using ( Prediction.Off() )
+			{
+				var bolt = new CrossbowBolt();
+				bolt.Position = Owner.EyePos;
+				bolt.Rotation = Owner.EyeRot;
+				bolt.Owner = Owner;
+				bolt.Velocity = Owner.EyeRot.Forward * 100;
+			}
 	}
 
-	public override void OnPlayerControlTick( Player player )
+	public override void Simulate( Client cl )
 	{
-		base.OnPlayerControlTick( player );
+		base.Simulate( cl );
 
 		Zoomed = Owner.Input.Down( InputButton.Attack2 );
 	}
@@ -56,20 +56,22 @@ partial class Crossbow : BaseDmWeapon, IPlayerCamera, IPlayerInput
 		}
 	}
 
-	public virtual void BuildInput( ClientInput owner )
+	public override void BuildInput( InputBuilder input )
 	{
 		if ( Zoomed )
 		{
-			owner.ViewAngles = Angles.Lerp( owner.LastViewAngles, owner.ViewAngles, 0.2f );
+			// maybe just viewangles? dunno
+			input.ViewAngles = Angles.Lerp( input.OriginalViewAngles, input.ViewAngles, 0.2f );
 		}
 	}
+
 
 	[ClientRpc]
 	protected override void ShootEffects()
 	{
 		Host.AssertClient();
 
-		if ( Owner == Player.Local )
+		if ( Owner == Local.Client )
 		{
 			new Sandbox.ScreenShake.Perlin( 0.5f, 4.0f, 1.0f, 0.5f );
 		}

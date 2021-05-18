@@ -3,7 +3,7 @@
 
 [Library( "dm_shotgun", Title = "Shotgun" )]
 partial class Shotgun : BaseDmWeapon
-{ 
+{
 	public override string ViewModelPath => "weapons/rust_pumpshotgun/v_rust_pumpshotgun.vmdl";
 	public override float PrimaryRate => 1;
 	public override float SecondaryRate => 1;
@@ -16,12 +16,12 @@ partial class Shotgun : BaseDmWeapon
 	{
 		base.Spawn();
 
-		SetModel( "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl" );  
+		SetModel( "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl" );
 
 		AmmoClip = 6;
 	}
 
-	public override void AttackPrimary() 
+	public override void AttackPrimary()
 	{
 		TimeSincePrimaryAttack = 0;
 		TimeSinceSecondaryAttack = 0;
@@ -32,7 +32,7 @@ partial class Shotgun : BaseDmWeapon
 			return;
 		}
 
-		Owner.SetAnimParam( "b_attack", true );
+		ViewModelEntity?.SetAnimParam( "b_attack", true );
 
 		//
 		// Tell the clients to play the shoot effects
@@ -60,7 +60,7 @@ partial class Shotgun : BaseDmWeapon
 			return;
 		}
 
-		Owner.SetAnimParam( "b_attack", true );
+		ViewModelEntity?.SetAnimParam( "b_attack", true );
 
 		//
 		// Tell the clients to play the shoot effects
@@ -87,9 +87,9 @@ partial class Shotgun : BaseDmWeapon
 
 		ViewModelEntity?.SetAnimParam( "fire", true );
 
-		if (Owner == Player.Local)
+		if ( Owner == Local.Client )
 		{
-			new Sandbox.ScreenShake.Perlin(1.0f, 1.5f, 2.0f);
+			new Sandbox.ScreenShake.Perlin( 1.0f, 1.5f, 2.0f );
 		}
 
 		CrosshairPanel?.OnEvent( "fire" );
@@ -105,9 +105,9 @@ partial class Shotgun : BaseDmWeapon
 		ViewModelEntity?.SetAnimParam( "fire_double", true );
 		CrosshairPanel?.OnEvent( "fire" );
 
-		if (Owner == Player.Local)
+		if ( Owner == Local.Client )
 		{
-			new Sandbox.ScreenShake.Perlin(3.0f, 3.0f, 3.0f);
+			new Sandbox.ScreenShake.Perlin( 3.0f, 3.0f, 3.0f );
 		}
 	}
 
@@ -121,7 +121,7 @@ partial class Shotgun : BaseDmWeapon
 		if ( AmmoClip >= ClipSize )
 			return;
 
-		if ( Owner is DeathmatchPlayer player )
+		if ( Owner is BalloonPartyPlayer player )
 		{
 			var ammo = player.TakeAmmo( AmmoType, 1 );
 			if ( ammo == 0 )
@@ -146,7 +146,7 @@ partial class Shotgun : BaseDmWeapon
 		ViewModelEntity?.SetAnimParam( "reload_finished", true );
 	}
 
-	public override void TickPlayerAnimator( PlayerAnimator anim )
+	public override void SimulateAnimator( PawnAnimator anim )
 	{
 		anim.SetParam( "holdtype", 2 ); // TODO this is shit
 		anim.SetParam( "aimat_weight", 1.0f );

@@ -6,7 +6,7 @@ using System.Linq;
 /// <summary>
 /// The main inventory panel, top left of the screen.
 /// </summary>
-public class InventoryBar : Panel, IClientInput
+public class InventoryBar : Panel
 {
 	List<InventoryColumn> columns = new();
 	List<BaseDmWeapon> Weapons = new();
@@ -31,11 +31,11 @@ public class InventoryBar : Panel, IClientInput
 
 		SetClass( "active", IsOpen );
 
-		var player = Player.Local;
-		if ( player == null ) return;
+		var pawn = Local.Pawn;
+		if ( pawn == null ) return;
 
 		Weapons.Clear();
-		Weapons.AddRange( player.Children.Select( x => x as BaseDmWeapon ).Where( x => x.IsValid() && x.IsUsable() ) );
+		Weapons.AddRange( pawn.Children.Select( x => x as BaseDmWeapon ).Where( x => x.IsValid() && x.IsUsable() ) );
 
 		foreach ( var weapon in Weapons )
 		{
@@ -47,7 +47,7 @@ public class InventoryBar : Panel, IClientInput
 	/// IClientInput implementation, calls during the client input build.
 	/// You can both read and write to input, to affect what happens down the line.
 	/// </summary>
-	public void ProcessClientInput( ClientInput input )
+	public void ProcessClientInput( InputBuilder input )
 	{
 		bool wantOpen = IsOpen;
 
@@ -70,7 +70,7 @@ public class InventoryBar : Panel, IClientInput
 		// We're not open, but we want to be
 		if ( IsOpen != wantOpen )
 		{
-			SelectedWeapon = Player.Local.ActiveChild as BaseDmWeapon;
+			SelectedWeapon = Local.Pawn.ActiveChild as BaseDmWeapon;
 			IsOpen = true;
 		}
 
@@ -113,7 +113,7 @@ public class InventoryBar : Panel, IClientInput
 		}
 	}
 
-	int SlotPressInput( ClientInput input, int SelectedIndex )
+	int SlotPressInput( InputBuilder input, int SelectedIndex )
 	{
 		var columninput = 0;
 

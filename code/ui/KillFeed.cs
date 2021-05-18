@@ -26,9 +26,9 @@ public partial class KillFeed : Panel
 		e.AddClass( method );
 
 		e.Left.Text = left;
-		e.Left.SetClass( "me", lsteamid == (Player.Local?.SteamId) );
+		e.Left.SetClass( "me", lsteamid == (Local.Client?.SteamId) );
 
 		e.Right.Text = right;
-		e.Right.SetClass( "me", rsteamid == (Player.Local?.SteamId) );
+		e.Right.SetClass( "me", rsteamid == (Local.Client?.SteamId) );
 	}
 }

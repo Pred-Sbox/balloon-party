@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 
 [Library]
-public partial class DeathmatchHud : Hud
+public partial class DeathmatchHud : HudEntity<RootPanel>
 {
 	public DeathmatchHud()
 	{

@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-partial class DeathmatchPlayer
+partial class BalloonPartyPlayer
 {
 	// TODO - make ragdolls one per entity
 	// TODO - make ragdolls dissapear after a load of seconds
@@ -14,8 +14,8 @@ partial class DeathmatchPlayer
 		// TODO - lets not make everyone write this shit out all the time
 		// maybe a CreateRagdoll<T>() on ModelEntity?
 		var ent = new ModelEntity();
-		ent.WorldPos = WorldPos;
-		ent.WorldRot = WorldRot;
+		ent.Position = Position;
+		ent.Rotation = Rotation;
 		ent.MoveType = MoveType.Physics;
 		ent.UsePhysicsCollision = true;
 		ent.SetInteractsAs( CollisionLayer.Debris );

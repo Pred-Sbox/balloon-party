@@ -16,7 +16,7 @@ public class Ammo : Panel
 
 	public override void Tick()
 	{
-		var player = Player.Local;
+		var player = Local.Pawn;
 		if ( player == null ) return;
 
 		var weapon = player.ActiveChild as BaseDmWeapon;

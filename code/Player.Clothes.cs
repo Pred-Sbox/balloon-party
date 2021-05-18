@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-partial class DeathmatchPlayer
+partial class BalloonPartyPlayer
 {
 	protected ModelEntity hat;
 	protected bool dressed { get; set; } = false;
@@ -17,7 +17,7 @@ partial class DeathmatchPlayer
 		dressed = true;
 
 		hat = new ModelEntity();
-		hat.SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
+		//hat.SetupPhysicsFromModel( PhysicsMotionType.Dynamic );
 		hat.SetModel( "models/person_clothes/hat/party_hat.vmdl" );
 		hat.SetParent( this, "head" );
 		// Do I need all these? probably not
@@ -26,7 +26,6 @@ partial class DeathmatchPlayer
 		hat.RemoveCollisionLayer( CollisionLayer.Player );
 		hat.EnableAllCollisions = false;
 		hat.EnableDrawing = true;
-		hat.Owner = this;
 	}
 
 
@@ -36,13 +35,11 @@ partial class DeathmatchPlayer
 		Host.AssertClient();
 
 		var ent = new Prop();
-		ent.WorldPos = WorldPos + new Vector3( 0, 0, 10 );
-		ent.WorldRot = WorldRot;
+		ent.Position = Position + new Vector3( 0, 0, 10 );
+		ent.Rotation = Rotation;
 		ent.SetModel( "models/person_clothes/hat/party_hat.vmdl" );
-		SetupPhysicsFromModel( PhysicsMotionType.Dynamic, false );
 		ent.ApplyAbsoluteImpulse( force );
 		//ent.EnableDrawing = true;
 		ent.DeleteAsync( 20 );
-
 	}
 }

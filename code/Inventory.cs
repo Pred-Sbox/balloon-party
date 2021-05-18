@@ -6,14 +6,14 @@ partial class DmInventory : BaseInventory
 {
 
 
-	public DmInventory( Player player ) : base ( player )
+public DmInventory( Player player ) : base ( player )
 	{
 
 	}
 
 	public override bool Add( Entity ent, bool makeActive = false )
 	{
-		var player = Owner as DeathmatchPlayer;
+		var player = Owner as BalloonPartyPlayer;
 		var weapon = ent as BaseDmWeapon;
 		var notices = !player.SupressPickupNotices;
 		//
@@ -31,8 +31,8 @@ partial class DmInventory : BaseInventory
 
 				if ( notices )
 				{
-					Sound.FromWorld( "dm.pickup_ammo", ent.WorldPos );
-					PickupFeed.OnPickup( player, $"+{ammo} {ammoType}" );
+					Sound.FromWorld( "dm.pickup_ammo", ent.Position );
+					PickupFeed.OnPickup( To.Single( player ), $"+{ammo} {ammoType}" );
 				}
 			}
 
@@ -45,8 +45,8 @@ partial class DmInventory : BaseInventory
 
 		if ( weapon != null && notices )
 		{
-			Sound.FromWorld( "dm.pickup_weapon", ent.WorldPos );
-			PickupFeed.OnPickup( player, $"{ent.ClassInfo.Title}" ); 
+			Sound.FromWorld( "dm.pickup_weapon", ent.Position );
+			PickupFeed.OnPickup( To.Single( player ), $"{ent.ClassInfo.Title}" ); 
 		}
 
 

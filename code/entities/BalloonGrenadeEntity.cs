@@ -1,15 +1,18 @@
 ﻿using Sandbox;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace balloonparty.entities
 {
-	[Library("Balloon Grenade Entity")]
+	[Library( "Balloon Grenade Entity" )]
 	partial class BalloonGrenadeEntity : ModelEntity
 	{
 		[ServerVar( "balloon_grenade_debug" )]
@@ -47,16 +50,20 @@ namespace balloonparty.entities
 		}
 		public override void OnKilled()
 		{
-			if ( !PhysicsBody.IsValid() )
-				return;
+			ResetInterpolation();
 			EnableDrawing = false;
 			EnableAllCollisions = false;
-			ResetVelocity();
-
-			PhysicsBody.GravityScale = 0;
 			_isExploding = false;
 			PlaySound( ExplodeSound.Name );
 			DisposeTrail();
+			if ( !PhysicsBody.IsValid() )
+				return;
+
+			ResetVelocity();
+			PhysicsBody.GravityScale = 0;
+
+
+
 		}
 
 		private void ResetVelocity()
@@ -81,7 +88,7 @@ namespace balloonparty.entities
 			if ( delay > 0 )
 				await Task.Delay( delay );
 			if ( Debug )
-				DebugOverlay.Sphere( WorldPos, ExplosionRadius, Color.Red, duration: 0.5f );
+				DebugOverlay.Sphere( Position, ExplosionRadius, Color.Red, duration: 0.5f );
 
 			DisposeTrail();
 			ApplyForceToLocalEntities();
@@ -96,16 +103,18 @@ namespace balloonparty.entities
 			using ( Prediction.Off() )
 			{
 
-				var hitEntities = Physics.GetEntitiesInSphere( WorldPos, ExplosionRadius );
+				var hitEntities = Physics.GetEntitiesInSphere( Position, ExplosionRadius );
 				foreach ( var entity in hitEntities )
 				{
 					if ( entity is Player pl )
 					{
-						var dmgInfo = DamageInfo.Explosion( WorldPos, (ExplosionForce / 2), Damage );
-						dmgInfo.Attacker = Owner;
+						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage );
+						dmgInfo.Attacker = Local.Pawn;
 						dmgInfo.HitboxIndex = 1;
 						dmgInfo.Weapon = this;
-						pl.ApplyAbsoluteImpulse( (pl.WorldPos - WorldPos).Normal * ExplosionForce );
+						pl.LastAttacker = Local.Pawn;
+						pl.Owner.LastAttacker = Local.Pawn;
+						pl.ApplyAbsoluteImpulse( (pl.Position - Position).Normal * ExplosionForce );
 						pl.TakeDamage( dmgInfo );
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
@@ -115,7 +124,7 @@ namespace balloonparty.entities
 					}
 					else if ( entity is Prop prop )
 					{
-						var direction = prop.WorldPos - WorldPos;
+						var direction = prop.Position - Position;
 						prop.ApplyAbsoluteImpulse( direction.Normal * ExplosionForce );
 					}
 				}
@@ -126,20 +135,20 @@ namespace balloonparty.entities
 		private void ApplyForceToLocalEntities()
 		{
 			Host.AssertClient();
-			var hitEntities = Physics.GetEntitiesInSphere( WorldPos, ExplosionRadius );
+			var hitEntities = Physics.GetEntitiesInSphere( Position, ExplosionRadius );
 			foreach ( var entity in hitEntities )
 			{
 				if ( entity is ModelEntity me )
 				{
 					if ( me.PhysicsGroup != null )
 					{
-						var direction = me.PhysicsGroup.Pos - WorldPos;
+						var direction = me.PhysicsGroup.Pos - Position;
 						me.PhysicsGroup.AddVelocity( direction.Normal * (ExplosionForce / 2) );
 					}
 				}
 				else if ( entity is Prop prop )
 				{
-					var direction = prop.WorldPos - WorldPos;
+					var direction = prop.Position - Position;
 					prop.ApplyAbsoluteImpulse( direction.Normal * ExplosionForce );
 				}
 			}
@@ -156,7 +165,7 @@ namespace balloonparty.entities
 			using ( Prediction.Off() )
 			{
 				var explodeParticle = Particles.Create( "particles/confetti_burst.vpcf" );
-				var pos = WorldPos;
+				var pos = Position;
 				explodeParticle.SetPos( 0, pos );
 				explodeParticle.Destroy( false );
 			}

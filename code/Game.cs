@@ -6,9 +6,9 @@ using Sandbox;
 /// for creating the player and stuff.
 /// </summary>
 [Library( "balloon_party", Title = "Balloon Party" )]
-partial class DeathmatchGame : Game
+partial class BalloonPartyGame : Game
 {
-	public DeathmatchGame()
+	public BalloonPartyGame()
 	{
 		//
 		// Create the HUD entity. This is always broadcast to all clients
@@ -21,11 +21,19 @@ partial class DeathmatchGame : Game
 		}
 	}
 
+	public override void ClientJoined( Client cl )
+	{
+		base.ClientJoined( cl );
+		var player = new BalloonPartyPlayer();
+		player.Respawn();
+
+		cl.Pawn = player;
+	}
+
 	/// <summary>
 	/// Called when a player joins and wants a player entity. We create
 	/// our own class so we can control what happens.
 	/// </summary>
-	public override Player CreatePlayer() => new BalloonPartyPlayer();
 
 	public override void PostLevelLoaded()
 	{
@@ -39,24 +47,28 @@ partial class DeathmatchGame : Game
 	/// <summary>
 	/// Called when a player has died, or been killed
 	/// </summary>
-	public override void PlayerKilled( Player player )
-	{
-		Log.Info( $"{player.Name} was killed" );
-
-		if ( player.LastAttacker != null )
+		public override void OnKilled( Client client, Entity pawn )
 		{
-			if ( player.LastAttacker is Player attackPlayer )
+			Host.AssertServer();
+
+			Log.Info( $"{client.Name} was killed" );
+
+			if ( pawn.LastAttacker != null )
 			{
-				KillFeed.AddEntry( attackPlayer.SteamId, attackPlayer.Name, player.SteamId, player.Name, player.LastAttackerWeapon?.ClassInfo?.Name );
+				var attackerClient = pawn.LastAttacker.GetClientOwner();
+
+				if ( attackerClient != null )
+				{
+					OnKilledMessage( attackerClient.SteamId, attackerClient.Name, client.SteamId, client.Name, pawn.LastAttackerWeapon?.ClassInfo?.Name );
+				}
+				else
+				{
+					OnKilledMessage( (ulong)pawn.LastAttacker.NetworkIdent, pawn.LastAttacker.ToString(), client.SteamId, client.Name, "killed" );
+				}
 			}
 			else
 			{
-				KillFeed.AddEntry( (ulong)player.LastAttacker.NetworkIdent, player.LastAttacker.ToString(), player.SteamId, player.Name, "killed" );
+				OnKilledMessage( 0, "", client.SteamId, client.Name, "died" );
 			}
 		}
-		else
-		{
-			KillFeed.AddEntry( (ulong)0, "", player.SteamId, player.Name, "died" );
-		}
-	}
 }

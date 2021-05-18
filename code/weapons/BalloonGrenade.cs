@@ -28,7 +28,7 @@ namespace balloonparty.weapons
 
 		public override bool CanPrimaryAttack()
 		{
-			if ( !Owner.Input.Pressed( InputButton.Attack1 ) || Owner.Health <= 0 )
+			if ( !Owner.Input.Down( InputButton.Attack1 ) || Owner.Health <= 0 )
 				return false;
 
 			return base.CanPrimaryAttack();
@@ -36,7 +36,7 @@ namespace balloonparty.weapons
 
 		public override bool CanSecondaryAttack()
 		{
-			if ( !Owner.Input.Pressed( InputButton.Attack2 ) || Owner.Health <= 0 )
+			if ( !Owner.Input.Down( InputButton.Attack2 ) || Owner.Health <= 0 )
 				return false;
 			return base.CanSecondaryAttack();
 		}
@@ -50,16 +50,16 @@ namespace balloonparty.weapons
 
 		public override void AttackPrimary()
 		{
-			TimeSincePrimaryAttack = -1;
-			TimeSinceSecondaryAttack = -1;
+			TimeSincePrimaryAttack = -0.5f;
+			TimeSinceSecondaryAttack = -0.5f;
 
 			Shoot( Owner.EyePos, Owner.EyeRot.Forward, _primaryForce );
 		}
 
 		public override void AttackSecondary()
 		{
-			TimeSincePrimaryAttack = -1;
-			TimeSinceSecondaryAttack = -1;
+			TimeSincePrimaryAttack = -0.5f;
+			TimeSinceSecondaryAttack = -0.5f;
 
 			Shoot( Owner.EyePos, Owner.EyeRot.Forward, _secondaryForce );
 		}
@@ -77,18 +77,20 @@ namespace balloonparty.weapons
 				var ent = ((BalloonPartyPlayer)Owner).grenadePooler.GetPooledObject();
 				using ( Prediction.Off() )
 				{
-					ent.WorldPos = Owner.EyePos + Owner.EyeRot.Forward * 50;
-					ent.WorldRot = Owner.EyeRot;
+					ent.ResetInterpolation();
+					ent.Position = Owner.EyePos + (Owner.EyeRot.Forward * 50);
+					ent.Rotation = Owner.EyeRot;
+					ent.Velocity = Owner.EyeRot.Forward * force;
+					ent.PhysicsBody.GravityScale = ent.GravityScale;
 					ent.AttachTrail();
+					ent.RenderColor = Color.Random;
+					ent.EnableAllCollisions = true;
+					ent.EnableDrawing = true;
+					// TODO: Maybe owenr should be Owner?
+					ent.Owner = Local.Pawn;
+					ent.StartDestroy();
 				}
-				ent.RenderColor = Color.Random;
-				ent.PhysicsBody.GravityScale = ent.GravityScale;
-				ent.EnableAllCollisions = true;
-				ent.EnableDrawing = true;
-				ent.Velocity = Owner.EyeRot.Forward * force;
-				ent.Owner = Owner;
 
-				ent.StartDestroy();
 			}
 
 			//
@@ -124,45 +126,6 @@ namespace balloonparty.weapons
 			return;
 		}
 
-
-		public override void OnPlayerControlTick( Player owner )
-		{
-			base.OnPlayerControlTick( owner );
-
-			//DebugTrace( owner );
-
-			//if ( !NavMesh.IsLoaded )
-			//	return;
-
-			//var forward = owner.EyeRot.Forward * 2000;
-
-
-			//var tr = Trace.Ray( owner.EyePos, owner.EyePos + forward )
-			//				.Ignore( owner )
-			//				.Run();
-
-			//var closestPoint = NavMesh.GetClosestPoint( tr.EndPos );
-
-			//DebugOverlay.Line( tr.EndPos, closestPoint, 0.1f );
-
-			//DebugOverlay.Axis( closestPoint, Rotation.LookAt( tr.Normal ), 2.0f, Time.Delta * 2 );
-			//DebugOverlay.Text( closestPoint, $"CLOSEST Walkable POINT", Time.Delta * 2 );
-
-			//NavMesh.BuildPath( Owner.WorldPos, closestPoint );
-		}
-
-		//public void DebugTrace( Player player )
-		//{
-		//	for ( float x = -10; x < 10; x += 1.0f )
-		//		for ( float y = -10; y < 10; y += 1.0f )
-		//		{
-		//			var tr = Trace.Ray( player.EyePos, player.EyePos + player.EyeRot.Forward * 4096 + player.EyeRot.Left * (x + Rand.Float( -1.6f, 1.6f )) * 100 + player.EyeRot.Up * (y + Rand.Float( -1.6f, 1.6f )) * 100 ).Ignore( player ).Run();
-
-		//			if ( IsServer ) DebugOverlay.Line( tr.EndPos, tr.EndPos + tr.Normal, Color.Cyan, duration: 20 );
-		//			else DebugOverlay.Line( tr.EndPos, tr.EndPos + tr.Normal, Color.Yellow, duration: 20 );
-		//		}
-		//}
-
 		[ClientRpc]
 		protected override void ShootEffects()
 		{
@@ -177,7 +140,7 @@ namespace balloonparty.weapons
 			ViewModelEntity?.SetAnimParam( "fire", true );
 			CrosshairPanel?.OnEvent( "onattack" );
 
-			if ( Owner == Player.Local )
+			if ( Owner == Local.Client )
 			{
 				new Sandbox.ScreenShake.Perlin( 0.5f, 2.0f, 0.5f );
 			}

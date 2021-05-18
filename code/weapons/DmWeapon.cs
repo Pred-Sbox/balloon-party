@@ -33,7 +33,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 	public int AvailableAmmo()
 	{
-		var owner = Owner as DeathmatchPlayer;
+		var owner = Owner as BalloonPartyPlayer;
 		if ( owner == null ) return 0;
 		return owner.AmmoCount( AmmoType );
 	}
@@ -55,7 +55,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 		PickupTrigger = new PickupTrigger();
 		PickupTrigger.Parent = this;
-		PickupTrigger.WorldPos = WorldPos;
+		PickupTrigger.Position = Position;
 	}
 
 	public override void Reload()
@@ -68,7 +68,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 		TimeSinceReload = 0;
 
-		if ( Owner is DeathmatchPlayer player )
+		if ( Owner is BalloonPartyPlayer player )
 		{
 			if ( player.AmmoCount( AmmoType ) <= 0 )
 				return;
@@ -77,18 +77,20 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 		}
 
 		IsReloading = true;
-		Owner.SetAnimParam( "b_reload", true ); 
+
+		(Owner as AnimEntity).SetAnimParam( "b_reload", true );
+
 		StartReloadEffects();
 	}
 
-	public override void OnPlayerControlTick( Player owner ) 
+	public override void Simulate( Client owner )
 	{
 		if ( TimeSinceDeployed < 0.6f )
 			return;
 
 		if ( !IsReloading )
 		{
-			base.OnPlayerControlTick( owner );
+			base.Simulate( owner );
 		}
 
 		if ( IsReloading && TimeSinceReload > ReloadTime )
@@ -101,7 +103,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 	{
 		IsReloading = false;
 
-		if ( Owner is DeathmatchPlayer player )
+		if ( Owner is BalloonPartyPlayer player )
 		{
 			var ammo = player.TakeAmmo( AmmoType, ClipSize - AmmoClip );
 			if ( ammo == 0 )
@@ -162,7 +164,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 		Particles.Create( "particles/pistol_muzzleflash.vpcf", EffectEntity, "muzzle" );
 
-		if (Owner == Player.Local)
+		if ( IsLocalPawn )
 		{
 			new Sandbox.ScreenShake.Perlin();
 		}
@@ -229,7 +231,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 			return;
 
 		ViewModelEntity = new DmViewModel();
-		ViewModelEntity.WorldPos = WorldPos;
+		ViewModelEntity.Position = Position;
 		ViewModelEntity.Owner = Owner;
 		ViewModelEntity.EnableViewmodelRendering = true;
 		ViewModelEntity.SetModel( ViewModelPath );
@@ -237,10 +239,10 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 	public override void CreateHudElements()
 	{
-		if ( Hud.CurrentPanel == null ) return;
+		if ( Local.Hud == null ) return;
 
 		CrosshairPanel = new Crosshair();
-		CrosshairPanel.Parent = Hud.CurrentPanel;
+		CrosshairPanel.Parent = Local.Hud;
 		CrosshairPanel.AddClass( ClassInfo.Name );
 	}
 
@@ -269,5 +271,4 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 			PickupTrigger.EnableTouch = true;
 		}
 	}
-
 }
