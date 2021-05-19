@@ -74,7 +74,7 @@ namespace balloonparty.weapons
 			if ( IsServer )
 			{
 
-				var ent = ((BalloonPartyPlayer)Owner).grenadePooler.GetPooledObject();
+				var ent = ((BalloonPartyPawn)Owner).grenadePooler.GetPooledObject();
 				using ( Prediction.Off() )
 				{
 					ent.ResetInterpolation();

@@ -24,7 +24,7 @@ partial class BalloonPartyGame : Game
 	public override void ClientJoined( Client cl )
 	{
 		base.ClientJoined( cl );
-		var player = new BalloonPartyPlayer();
+		var player = new BalloonPartyPawn();
 		player.Respawn();
 
 		cl.Pawn = player;
@@ -42,33 +42,4 @@ partial class BalloonPartyGame : Game
 		ItemRespawn.Init();
 	}
 
-
-
-	/// <summary>
-	/// Called when a player has died, or been killed
-	/// </summary>
-		public override void OnKilled( Client client, Entity pawn )
-		{
-			Host.AssertServer();
-
-			Log.Info( $"{client.Name} was killed" );
-
-			if ( pawn.LastAttacker != null )
-			{
-				var attackerClient = pawn.LastAttacker.GetClientOwner();
-
-				if ( attackerClient != null )
-				{
-					OnKilledMessage( attackerClient.SteamId, attackerClient.Name, client.SteamId, client.Name, pawn.LastAttackerWeapon?.ClassInfo?.Name );
-				}
-				else
-				{
-					OnKilledMessage( (ulong)pawn.LastAttacker.NetworkIdent, pawn.LastAttacker.ToString(), client.SteamId, client.Name, "killed" );
-				}
-			}
-			else
-			{
-				OnKilledMessage( 0, "", client.SteamId, client.Name, "died" );
-			}
-		}
 }

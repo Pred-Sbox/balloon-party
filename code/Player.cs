@@ -7,15 +7,19 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 
-partial class BalloonPartyPlayer : Player
+partial class BalloonPartyPawn : Player
 {
+	[ServerVar("god_mode")]
+	public static bool godMode {get; set; } = false;
+
 	TimeSince timeSinceDropped;
 
 	public bool SupressPickupNotices { get; private set; }
 	public EntityPooler<BalloonGrenadeEntity> grenadePooler { get; private set; }
 
 
-	public BalloonPartyPlayer()
+
+	public BalloonPartyPawn()
 	{
 		grenadePooler = new EntityPooler<BalloonGrenadeEntity>( 2 );
 		Inventory = new DmInventory( this );
@@ -200,6 +204,7 @@ partial class BalloonPartyPlayer : Player
 
 	public override void TakeDamage( DamageInfo info )
 	{
+		if(godMode) return;
 		LastDamage = info;
 
 		// hack - hitbox 0 is head
@@ -211,7 +216,7 @@ partial class BalloonPartyPlayer : Player
 
 		base.TakeDamage( info );
 
-		if ( info.Attacker is BalloonPartyPlayer attacker && attacker != this )
+		if ( info.Attacker is BalloonPartyPawn attacker && attacker != this )
 		{
 			// Note - sending this only to the attacker!
 			attacker.DidDamage( To.Single( attacker ), info.Position, info.Damage, ((float)Health).LerpInverse( 100, 0 ) );
@@ -236,4 +241,6 @@ partial class BalloonPartyPlayer : Player
 
 		DamageIndicator.Current?.OnHit( pos );
 	}
+
+
 }

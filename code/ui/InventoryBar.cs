@@ -31,11 +31,11 @@ public class InventoryBar : Panel
 
 		SetClass( "active", IsOpen );
 
-		var pawn = Local.Pawn;
-		if ( pawn == null ) return;
+		var player = Local.Pawn as Player;
+		if ( player == null ) return;
 
 		Weapons.Clear();
-		Weapons.AddRange( pawn.Children.Select( x => x as BaseDmWeapon ).Where( x => x.IsValid() && x.IsUsable() ) );
+		Weapons.AddRange( player.Children.Select( x => x as BaseDmWeapon ).Where( x => x.IsValid() && x.IsUsable() ) );
 
 		foreach ( var weapon in Weapons )
 		{
@@ -47,6 +47,7 @@ public class InventoryBar : Panel
 	/// IClientInput implementation, calls during the client input build.
 	/// You can both read and write to input, to affect what happens down the line.
 	/// </summary>
+	[Event( "buildinput" )]
 	public void ProcessClientInput( InputBuilder input )
 	{
 		bool wantOpen = IsOpen;

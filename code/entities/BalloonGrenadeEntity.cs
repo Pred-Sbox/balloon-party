@@ -19,10 +19,11 @@ namespace balloonparty.entities
 		public static bool Debug { get; set; } = false;
 		public int TimeToLive => 2;
 
-		public float Damage => 100f;
+		public float Damage => 2f;
 		public float ExplosionRadius => 100f;
 		public float ExplosionForce => 300f;
 		public float GravityScale => 0.5f;
+
 		// Maybe network this ?
 		private TimeSince timeSince { get; set; }
 		[Net]
@@ -77,7 +78,7 @@ namespace balloonparty.entities
 		protected override void OnPhysicsCollision( CollisionEventData eventData )
 		{
 			return;
-		}
+		}	
 
 		public async void Explode( int delay = 0 )
 		{
@@ -108,14 +109,13 @@ namespace balloonparty.entities
 				{
 					if ( entity is Player pl )
 					{
-						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage );
-						dmgInfo.Attacker = Local.Pawn;
+						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage ).WithAttacker(Owner).WithWeapon(this);
+
 						dmgInfo.HitboxIndex = 1;
-						dmgInfo.Weapon = this;
-						pl.LastAttacker = Local.Pawn;
-						pl.Owner.LastAttacker = Local.Pawn;
 						pl.ApplyAbsoluteImpulse( (pl.Position - Position).Normal * ExplosionForce );
 						pl.TakeDamage( dmgInfo );
+						var controller = pl.Controller as WalkController;
+						controller.AttachBalloons();
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
 					{

@@ -121,7 +121,7 @@ partial class Shotgun : BaseDmWeapon
 		if ( AmmoClip >= ClipSize )
 			return;
 
-		if ( Owner is BalloonPartyPlayer player )
+		if ( Owner is BalloonPartyPawn player )
 		{
 			var ammo = player.TakeAmmo( AmmoType, 1 );
 			if ( ammo == 0 )

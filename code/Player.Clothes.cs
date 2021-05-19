@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-partial class BalloonPartyPlayer
+partial class BalloonPartyPawn
 {
 	protected ModelEntity hat;
 	protected bool dressed { get; set; } = false;

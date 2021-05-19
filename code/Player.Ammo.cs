@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-partial class BalloonPartyPlayer
+partial class BalloonPartyPawn
 {
 	[Net]
 	public NetList<int> Ammo { get; set; } = new ();

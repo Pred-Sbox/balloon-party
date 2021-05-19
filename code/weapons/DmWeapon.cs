@@ -33,7 +33,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 	public int AvailableAmmo()
 	{
-		var owner = Owner as BalloonPartyPlayer;
+		var owner = Owner as BalloonPartyPawn;
 		if ( owner == null ) return 0;
 		return owner.AmmoCount( AmmoType );
 	}
@@ -68,7 +68,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 
 		TimeSinceReload = 0;
 
-		if ( Owner is BalloonPartyPlayer player )
+		if ( Owner is BalloonPartyPawn player )
 		{
 			if ( player.AmmoCount( AmmoType ) <= 0 )
 				return;
@@ -103,7 +103,7 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 	{
 		IsReloading = false;
 
-		if ( Owner is BalloonPartyPlayer player )
+		if ( Owner is BalloonPartyPawn player )
 		{
 			var ammo = player.TakeAmmo( AmmoType, ClipSize - AmmoClip );
 			if ( ammo == 0 )
