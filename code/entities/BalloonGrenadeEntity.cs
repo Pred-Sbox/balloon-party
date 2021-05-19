@@ -26,11 +26,11 @@ namespace balloonparty.entities
 
 		// Maybe network this ?
 		private TimeSince timeSince { get; set; }
-		[Net]
+		[NetPredicted]
 		private float timeAlive { get; set; }
-		[Net]
+		[NetPredicted]
 		private bool _isExploding { get; set; }
-		[Net]
+		[NetPredicted]
 		private bool _timerStarted { get; set; }
 		private Particles trail { get; set; }
 		static SoundEvent ExplodeSound = new( "sounds/balloon_pop_cute.vsnd" )
@@ -80,14 +80,13 @@ namespace balloonparty.entities
 			return;
 		}
 
-		public async void Explode( int delay = 0 )
+		public void Explode()
 		{
 			if ( !IsServer ) return;
 			_timerStarted = false;
 			_isExploding = true;
 			timeAlive = 0;
-			if ( delay > 0 )
-				await Task.Delay( delay );
+
 			if ( Debug )
 				DebugOverlay.Sphere( Position, ExplosionRadius, Color.Red, duration: 0.5f );
 
@@ -107,21 +106,21 @@ namespace balloonparty.entities
 				var hitEntities = Physics.GetEntitiesInSphere( Position, ExplosionRadius );
 				foreach ( var entity in hitEntities )
 				{
-					if ( entity is Player player )
+					if ( entity is BalloonGrenadeEntity bl )
+					{
+						if ( bl._isExploding || bl == this ) continue;
+						bl.Explode();
+					}
+					else if ( entity is Player player )
 					{
 						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage ).WithAttacker( Owner ).WithWeapon( this );
 
 						dmgInfo.HitboxIndex = 1;
 						player.ApplyAbsoluteImpulse( (player.Position - Position).Normal * ExplosionForce );
 						player.TakeDamage( dmgInfo );
-						var controller = player.Controller as WalkController;
+						var controller = player.Controller as WalkControllerBP;
 						controller.AttachBalloons();
-						AttachBalloon(player, RenderColor);
-					}
-					else if ( entity is BalloonGrenadeEntity bl )
-					{
-						if ( bl._isExploding ) continue;
-						bl.Explode();
+						AttachBalloon( player, RenderColor );
 					}
 					else if ( entity is Prop prop )
 					{
@@ -225,7 +224,7 @@ namespace balloonparty.entities
 			using ( Prediction.Off() )
 			{
 				var newZ = player.PhysicsBody.GetBounds().Maxs.z + 1;
-				var pos = player.Position.WithZ(newZ);
+				var pos = player.Position.WithZ( newZ );
 				var ent = new BalloonEntity
 				{
 					Position = pos
@@ -233,7 +232,7 @@ namespace balloonparty.entities
 				ent.SetModel( "models/citizen_props/balloonregular01.vmdl" );
 				ent.PhysicsBody.GravityScale = 0;
 				ent.RenderColor = color;
-				ent.Owner = player;
+				ent.attachedTo = player.Controller as WalkControllerBP;
 
 				var rope = Particles.Create( "particles/rope.vpcf" );
 				rope.SetEntity( 0, ent );
@@ -247,7 +246,7 @@ namespace balloonparty.entities
 					.From( ent.PhysicsBody )
 					.To( player.PhysicsBody )
 					.WithFrequency( 5.0f )
-					.WithPivot(player.Position)
+					.WithPivot( player.Position )
 					.WithDampingRatio( 0.7f )
 					.WithReferenceMass( 0 )
 					.WithMinRestLength( 0 )

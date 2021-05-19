@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-class BalloonEntity : Prop, IPhysicsUpdate
+partial class BalloonEntity : Prop, IPhysicsUpdate
 {
 	static SoundEvent PopSound = new( "sounds/balloon_pop_cute.vsnd" )
 	{
@@ -16,7 +16,7 @@ class BalloonEntity : Prop, IPhysicsUpdate
 
 	public PhysicsJoint AttachJoint;
 	public Particles AttachRope;
-
+	public WalkControllerBP attachedTo;
 	private static float GravityScale => -1;
 
 	public override void Spawn()
@@ -48,11 +48,10 @@ class BalloonEntity : Prop, IPhysicsUpdate
 
 	public override void OnKilled()
 	{
+		attachedTo.RemoveBalloons();
 		base.OnKilled();
-		var player = Owner as Player;
-		var controller = player.Controller as WalkController;
-		controller.RemoveBalloons();
 		PlaySound( PopSound.Name );
+
 	}
 
 	public void OnPostPhysicsStep( float dt )

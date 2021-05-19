@@ -11,6 +11,7 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 		base.Spawn();
 
 		SetModel( "weapons/rust_crossbow/rust_crossbow_bolt.vmdl" );
+		Scale = 0.5f;
 	}
 
 
@@ -48,12 +49,13 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 
 			// TODO: SPARKY PARTICLES (unless flesh)
 
+
 			Stuck = true;
 			Position = tr.EndPos + Rotation.Forward * -1;
-
+			var hitBalloon = tr.Entity is BalloonEntity ? true : false;
 			if ( tr.Entity.IsValid() )
 			{
-				var damageInfo = DamageInfo.FromBullet( tr.EndPos, tr.Direction * 200, 60.0f )
+				var damageInfo = DamageInfo.FromBullet( tr.EndPos, tr.Direction * 200, hitBalloon ? 60.0f : 0f )
 													.UsingTraceResult( tr )
 													.WithAttacker( Owner )
 													.WithWeapon( this );
@@ -62,8 +64,15 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 			}
 
 			// TODO: Parent to bone so this will stick in the meaty heads
-			SetParent( tr.Entity, tr.Bone );
-			Owner = null;
+			if ( !hitBalloon )
+			{
+				SetParent( tr.Entity, tr.Bone );
+				Owner = null;
+			}
+			else
+			{
+				Delete();
+			}
 
 			//
 			// Surface impact effect
@@ -86,9 +95,9 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 		}
 		else
 		{
-			Position = end;
+			Position = tr.EndPos;
 		}
 
-		
+
 	}
 }

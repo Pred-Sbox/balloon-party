@@ -27,8 +27,7 @@ partial class BalloonPartyPawn : Player
 	public override void Respawn()
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
-
-		Controller = new WalkController();
+		Controller = new WalkControllerBP();
 		Animator = new StandardPlayerAnimator();
 		Camera = new FirstPersonCamera();
 		EnableAllCollisions = true;
@@ -40,7 +39,7 @@ partial class BalloonPartyPawn : Player
 		SupressPickupNotices = true;
 		if ( Inventory.Count() == 0 )
 		{
-			Inventory.Add( new Pistol(), false );
+			Inventory.Add( new Crossbow(), false );
 			Inventory.Add( new BalloonGrenade(), true );
 
 		}

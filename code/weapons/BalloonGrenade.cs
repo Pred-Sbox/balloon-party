@@ -80,10 +80,10 @@ partial class BalloonGrenade : BaseDmWeapon
 				ent.Rotation = Owner.EyeRot;
 				ent.Velocity = Owner.EyeRot.Forward * force;
 				ent.PhysicsBody.GravityScale = ent.GravityScale;
-				ent.AttachTrail();
 				ent.RenderColor = Color.Random;
 				ent.EnableAllCollisions = true;
 				ent.EnableDrawing = true;
+				ent.AttachTrail();
 				// TODO: Maybe owenr should be Owner?
 				ent.Owner = Local.Pawn;
 				ent.StartDestroy();

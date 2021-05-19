@@ -6,7 +6,7 @@ partial class Crossbow : BaseDmWeapon
 	public override string ViewModelPath => "weapons/rust_crossbow/v_rust_crossbow.vmdl";
 
 	public override float PrimaryRate => 1;
-	public override int Bucket => 3;
+	public override int Bucket => 2;
 	public override AmmoType AmmoType => AmmoType.Crossbow;
 
 	[Net]
@@ -16,7 +16,7 @@ partial class Crossbow : BaseDmWeapon
 	{
 		base.Spawn();
 
-		AmmoClip = 3;
+		AmmoClip = 400;
 		SetModel( "weapons/rust_crossbow/rust_crossbow.vmdl" );
 	}
 
