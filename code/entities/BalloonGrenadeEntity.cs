@@ -78,7 +78,7 @@ namespace balloonparty.entities
 		protected override void OnPhysicsCollision( CollisionEventData eventData )
 		{
 			return;
-		}	
+		}
 
 		public async void Explode( int delay = 0 )
 		{
@@ -107,15 +107,16 @@ namespace balloonparty.entities
 				var hitEntities = Physics.GetEntitiesInSphere( Position, ExplosionRadius );
 				foreach ( var entity in hitEntities )
 				{
-					if ( entity is Player pl )
+					if ( entity is Player player )
 					{
-						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage ).WithAttacker(Owner).WithWeapon(this);
+						var dmgInfo = DamageInfo.Explosion( Position, (ExplosionForce / 2), Damage ).WithAttacker( Owner ).WithWeapon( this );
 
 						dmgInfo.HitboxIndex = 1;
-						pl.ApplyAbsoluteImpulse( (pl.Position - Position).Normal * ExplosionForce );
-						pl.TakeDamage( dmgInfo );
-						var controller = pl.Controller as WalkController;
+						player.ApplyAbsoluteImpulse( (player.Position - Position).Normal * ExplosionForce );
+						player.TakeDamage( dmgInfo );
+						var controller = player.Controller as WalkController;
 						controller.AttachBalloons();
+						AttachBalloon(player);
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
 					{
@@ -212,6 +213,46 @@ namespace balloonparty.entities
 			if ( _timerStarted && timeSince.Relative >= timeAlive + TimeToLive )
 			{
 				Explode();
+			}
+		}
+
+
+		// TODO: Remove on player death
+		private void AttachBalloon( Player player )
+		{
+			if ( !IsServer ) return;
+
+			using ( Prediction.Off() )
+			{
+				var pos = new Vector3( player.Position.x, player.Position.y, player.CollisionBounds.Maxs.y );
+				var ent = new BalloonEntity
+				{
+					Position = pos
+				};
+				ent.SetModel( "models/citizen_props/balloonregular01.vmdl" );
+				ent.PhysicsBody.GravityScale = 0;
+				ent.RenderColor = Color.Random;
+
+				var rope = Particles.Create( "particles/rope.vpcf" );
+				rope.SetEntity( 0, ent );
+
+				var attachLocalPos = player.PhysicsBody.Transform.PointToLocal( pos );
+				rope.SetEntityBone( 1, player, -1, new Transform( attachLocalPos ) );
+				rope.SetEntityAttachment( 1, player, "hat" );
+				ent.AttachRope = rope;
+
+				ent.AttachJoint = PhysicsJoint.Spring
+					.From( ent.PhysicsBody )
+					.To( player.PhysicsBody )
+					.WithFrequency( 5.0f )
+					.WithPivot(player.Position)
+					.WithDampingRatio( 0.7f )
+					.WithReferenceMass( 0 )
+					.WithMinRestLength( 0 )
+					.WithMaxRestLength( 100 )
+					.WithCollisionsEnabled()
+					.Create();
+
 			}
 		}
 
