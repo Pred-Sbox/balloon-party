@@ -1,6 +1,5 @@
 ﻿using balloonparty.entities;
 using balloonparty.utils;
-using balloonparty.weapons;
 using Sandbox;
 using System;
 using System.Linq;
@@ -41,7 +40,9 @@ partial class BalloonPartyPawn : Player
 		SupressPickupNotices = true;
 		if ( Inventory.Count() == 0 )
 		{
+			Inventory.Add( new Pistol(), false );
 			Inventory.Add( new BalloonGrenade(), true );
+
 		}
 		SupressPickupNotices = false;
 		Health = 100;

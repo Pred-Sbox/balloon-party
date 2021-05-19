@@ -116,7 +116,7 @@ namespace balloonparty.entities
 						player.TakeDamage( dmgInfo );
 						var controller = player.Controller as WalkController;
 						controller.AttachBalloons();
-						AttachBalloon(player);
+						AttachBalloon(player, RenderColor);
 					}
 					else if ( entity is BalloonGrenadeEntity bl )
 					{
@@ -218,20 +218,22 @@ namespace balloonparty.entities
 
 
 		// TODO: Remove on player death
-		private void AttachBalloon( Player player )
+		private void AttachBalloon( Player player, Color32 color )
 		{
 			if ( !IsServer ) return;
 
 			using ( Prediction.Off() )
 			{
-				var pos = new Vector3( player.Position.x, player.Position.y, player.CollisionBounds.Maxs.y );
+				var newZ = player.PhysicsBody.GetBounds().Maxs.z + 1;
+				var pos = player.Position.WithZ(newZ);
 				var ent = new BalloonEntity
 				{
 					Position = pos
 				};
 				ent.SetModel( "models/citizen_props/balloonregular01.vmdl" );
 				ent.PhysicsBody.GravityScale = 0;
-				ent.RenderColor = Color.Random;
+				ent.RenderColor = color;
+				ent.Owner = player;
 
 				var rope = Particles.Create( "particles/rope.vpcf" );
 				rope.SetEntity( 0, ent );

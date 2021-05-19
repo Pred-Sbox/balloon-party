@@ -49,7 +49,9 @@ class BalloonEntity : Prop, IPhysicsUpdate
 	public override void OnKilled()
 	{
 		base.OnKilled();
-
+		var player = Owner as Player;
+		var controller = player.Controller as WalkController;
+		controller.RemoveBalloons();
 		PlaySound( PopSound.Name );
 	}
 

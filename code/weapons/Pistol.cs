@@ -1,6 +1,5 @@
 ﻿using Sandbox;
 
-
 [Library( "dm_pistol", Title = "Pistol" )]
 partial class Pistol : BaseDmWeapon
 { 
@@ -17,7 +16,7 @@ partial class Pistol : BaseDmWeapon
 		base.Spawn();
 
 		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
-		AmmoClip = 12;
+		AmmoClip = 2000;
 	}
 
 	public override bool CanPrimaryAttack()

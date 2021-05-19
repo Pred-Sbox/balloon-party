@@ -38,7 +38,7 @@
 					{
 						_class = "RenderMeshFile"
 						filename = "models/person_clothes/hat/party_hat2.obj"
-						import_translation = [ -1.9, 0.0, 140.0 ]
+						import_translation = [ -5.0, 0.0, 139.0 ]
 						import_rotation = [ -18.0, 0.0, 0.0 ]
 						import_scale = 0.5
 						align_origin_x_type = "None"
@@ -73,7 +73,7 @@
 						surface_prop = "default"
 						collision_prop = "default"
 						recenter_on_parent_bone = false
-						offset_origin = [ -1.0, 0.0, 70.0 ]
+						offset_origin = [ -2.5, 0.0, 69.5 ]
 						offset_angles = [ -18.0, 0.0, 0.0 ]
 						filename = "models/person_clothes/hat/party_hat2.obj"
 						import_scale = 0.5
