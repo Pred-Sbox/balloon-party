@@ -72,9 +72,9 @@ partial class BalloonGrenade : BaseDmWeapon
 		if ( IsServer )
 		{
 
-			var ent = ((BalloonPartyPawn)Owner).grenadePooler.GetPooledObject();
 			using ( Prediction.Off() )
 			{
+				var ent = ((DeathmatchPlayer)Owner).grenadePooler.GetPooledObject();
 				ent.ResetInterpolation();
 				ent.Position = Owner.EyePos + (Owner.EyeRot.Forward * 50);
 				ent.Rotation = Owner.EyeRot;

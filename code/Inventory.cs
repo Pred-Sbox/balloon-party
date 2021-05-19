@@ -13,7 +13,7 @@ public DmInventory( Player player ) : base ( player )
 
 	public override bool Add( Entity ent, bool makeActive = false )
 	{
-		var player = Owner as BalloonPartyPawn;
+		var player = Owner as DeathmatchPlayer;
 		var weapon = ent as BaseDmWeapon;
 		var notices = !player.SupressPickupNotices;
 		//

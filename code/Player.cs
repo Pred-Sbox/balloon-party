@@ -1,31 +1,31 @@
-﻿using balloonparty.entities;
-using balloonparty.utils;
-using Sandbox;
+﻿using Sandbox;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 
-partial class BalloonPartyPawn : Player
+partial class DeathmatchPlayer : Player
 {
-	[ServerVar("god_mode")]
-	public static bool godMode {get; set; } = false;
+	[ServerVar( "god_mode" )]
+	public static bool godMode { get; set; } = false;
 
 	TimeSince timeSinceDropped;
 
 	public bool SupressPickupNotices { get; private set; }
-	public EntityPooler<BalloonGrenadeEntity> grenadePooler { get; private set; }
+	public ModelEntityPooler<BalloonGrenadeEntity> grenadePooler { get; private set; }
 
 
 
-	public BalloonPartyPawn()
+	public DeathmatchPlayer()
 	{
-		grenadePooler = new EntityPooler<BalloonGrenadeEntity>( 2 );
 		Inventory = new DmInventory( this );
 	}
 
 	public override void Respawn()
 	{
+		if ( grenadePooler == null )
+			grenadePooler = new ModelEntityPooler<BalloonGrenadeEntity>( 2 );
 		SetModel( "models/citizen/citizen.vmdl" );
 		Controller = new WalkControllerBP();
 		Animator = new StandardPlayerAnimator();
@@ -192,11 +192,11 @@ partial class BalloonPartyPawn : Player
 
 		setup.FieldOfView += fov;
 
-	//	var tx = new Sandbox.UI.PanelTransform();
-	//	tx.AddRotation( 0, 0, lean * -0.1f );
+		//	var tx = new Sandbox.UI.PanelTransform();
+		//	tx.AddRotation( 0, 0, lean * -0.1f );
 
-	//	Hud.CurrentPanel.Style.Transform = tx;
-	//	Hud.CurrentPanel.Style.Dirty(); 
+		//	Hud.CurrentPanel.Style.Transform = tx;
+		//	Hud.CurrentPanel.Style.Dirty(); 
 
 	}
 
@@ -204,7 +204,7 @@ partial class BalloonPartyPawn : Player
 
 	public override void TakeDamage( DamageInfo info )
 	{
-		if(godMode) return;
+		if ( godMode ) return;
 		LastDamage = info;
 
 		// hack - hitbox 0 is head
@@ -216,7 +216,7 @@ partial class BalloonPartyPawn : Player
 
 		base.TakeDamage( info );
 
-		if ( info.Attacker is BalloonPartyPawn attacker && attacker != this )
+		if ( info.Attacker is DeathmatchPlayer attacker && attacker != this )
 		{
 			// Note - sending this only to the attacker!
 			attacker.DidDamage( To.Single( attacker ), info.Position, info.Damage, ((float)Health).LerpInverse( 100, 0 ) );

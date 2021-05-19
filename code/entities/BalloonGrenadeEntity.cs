@@ -1,17 +1,5 @@
 ﻿using Sandbox;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace balloonparty.entities
-{
 	[Library( "Balloon Grenade Entity" )]
 	partial class BalloonGrenadeEntity : ModelEntity
 	{
@@ -262,4 +250,3 @@ namespace balloonparty.entities
 		//	throw new NotImplementedException();
 		//}
 	}
-}

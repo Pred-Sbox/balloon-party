@@ -1,5 +1,4 @@
-﻿using balloonparty;
-using Sandbox;
+﻿using Sandbox;
 
 /// <summary>
 /// This is the heart of the gamemode. It's responsible
@@ -24,10 +23,10 @@ partial class BalloonPartyGame : Game
 	public override void ClientJoined( Client cl )
 	{
 		base.ClientJoined( cl );
-		var player = new BalloonPartyPawn();
+		var player = new DeathmatchPlayer();
+		cl.Pawn = player;
 		player.Respawn();
 
-		cl.Pawn = player;
 	}
 
 	/// <summary>
