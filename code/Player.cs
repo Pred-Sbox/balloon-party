@@ -17,12 +17,14 @@ partial class BalloonPartyPlayer : Player
 
 	public BalloonPartyPlayer()
 	{
-		grenadePooler = new EntityPooler<BalloonGrenadeEntity>( 2 );
 		Inventory = new DmInventory( this );
 	}
 
 	public override void Respawn()
 	{
+		if ( grenadePooler == null )
+			grenadePooler = new EntityPooler<BalloonGrenadeEntity>( 2 );
+
 		SetModel( "models/citizen/citizen.vmdl" );
 
 		Controller = new WalkController();
@@ -188,11 +190,11 @@ partial class BalloonPartyPlayer : Player
 
 		setup.FieldOfView += fov;
 
-	//	var tx = new Sandbox.UI.PanelTransform();
-	//	tx.AddRotation( 0, 0, lean * -0.1f );
+		//	var tx = new Sandbox.UI.PanelTransform();
+		//	tx.AddRotation( 0, 0, lean * -0.1f );
 
-	//	Hud.CurrentPanel.Style.Transform = tx;
-	//	Hud.CurrentPanel.Style.Dirty(); 
+		//	Hud.CurrentPanel.Style.Transform = tx;
+		//	Hud.CurrentPanel.Style.Dirty(); 
 
 	}
 
