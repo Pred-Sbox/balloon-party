@@ -13,6 +13,7 @@ partial class DeathmatchPlayer : Player
 	TimeSince timeSinceDropped;
 
 	public bool SupressPickupNotices { get; private set; }
+
 	public ModelEntityPooler<BalloonGrenadeEntity> grenadePooler { get; private set; }
 
 
@@ -20,10 +21,12 @@ partial class DeathmatchPlayer : Player
 	public DeathmatchPlayer()
 	{
 		Inventory = new DmInventory( this );
+
 	}
 
 	public override void Respawn()
 	{
+		// TODO: Maybe instantiate Client Side ?
 		if ( grenadePooler == null )
 			grenadePooler = new ModelEntityPooler<BalloonGrenadeEntity>( 2 );
 		SetModel( "models/citizen/citizen.vmdl" );

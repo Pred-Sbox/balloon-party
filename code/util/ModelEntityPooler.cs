@@ -1,7 +1,7 @@
 ﻿using Sandbox;
 using System.Collections.Generic;
 
-class ModelEntityPooler<T> where T : ModelEntity, new()
+class ModelEntityPooler<T> where T : ModelEntity
 {
 	private int _initialAmount = 5;
 	private List<T> pooledObjects;
@@ -12,7 +12,7 @@ class ModelEntityPooler<T> where T : ModelEntity, new()
 		pooledObjects = new List<T>();
 		for ( var i = 0; i < _initialAmount; i++ )
 		{
-			var me = new T();
+			var me = Library.Create<T>(); 
 			// Set the models as "inactive"
 
 			me.EnableDrawing = false;
@@ -35,7 +35,8 @@ class ModelEntityPooler<T> where T : ModelEntity, new()
 				return pooledObjects[i];
 			}
 		}
-		var ent = new T();
+		var ent = Library.Create<T>();
+		
 		pooledObjects.Add( ent );
 		return ent;
 	}

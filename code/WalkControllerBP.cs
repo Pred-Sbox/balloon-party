@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 [Library]
-class WalkControllerBP : WalkController
+partial class WalkControllerBP : WalkController
 {
+	[Net]
 	private int _attachedBalloons { get; set; } = 0;
 	public int AttachedBalloons => _attachedBalloons;
 	public float BalloonVelocity => 30f;

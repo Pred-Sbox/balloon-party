@@ -53,9 +53,16 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 			Stuck = true;
 			Position = tr.EndPos + Rotation.Forward * -1;
 			var hitBalloon = tr.Entity is BalloonEntity ? true : false;
+			var hitGrenade = tr.Entity as BalloonGrenadeEntity;
+			if ( hitGrenade != null  )
+			{
+				hitGrenade.Explode();
+			}
+
 			if ( tr.Entity.IsValid() )
 			{
-				var damageInfo = DamageInfo.FromBullet( tr.EndPos, tr.Direction * 200, hitBalloon ? 60.0f : 0f )
+
+				var damageInfo = DamageInfo.FromBullet( tr.EndPos, tr.Direction * 200, hitBalloon ? 60.0f : 2f )
 													.UsingTraceResult( tr )
 													.WithAttacker( Owner )
 													.WithWeapon( this );
@@ -64,7 +71,7 @@ partial class CrossbowBolt : ModelEntity, IPhysicsUpdate
 			}
 
 			// TODO: Parent to bone so this will stick in the meaty heads
-			if ( !hitBalloon )
+			if ( !hitBalloon && hitGrenade == null)
 			{
 				SetParent( tr.Entity, tr.Bone );
 				Owner = null;

@@ -929,7 +929,7 @@
 	[
 		{
 			_class = "C_OP_TwistAroundAxis"
-			m_fForceAmount = 10.0
+			m_fForceAmount = 30.0
 			m_TwistAxis = [ 1.0, 1.0, 1.0 ]
 		},
 		{
