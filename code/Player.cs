@@ -31,7 +31,6 @@ partial class DeathmatchPlayer : Player
 		Controller = new WalkControllerBP();
 		Animator = new StandardPlayerAnimator();
 		Camera = new FirstPersonCamera();
-		RenderAlpha = 0.5f;
 		EnableAllCollisions = true;
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
