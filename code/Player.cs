@@ -16,12 +16,9 @@ partial class DeathmatchPlayer : Player
 
 	public ModelEntityPooler<BalloonGrenadeEntity> grenadePooler { get; private set; }
 
-
-
 	public DeathmatchPlayer()
 	{
 		Inventory = new DmInventory( this );
-
 	}
 
 	public override void Respawn()
@@ -29,15 +26,16 @@ partial class DeathmatchPlayer : Player
 		// TODO: Maybe instantiate Client Side ?
 		if ( grenadePooler == null )
 			grenadePooler = new ModelEntityPooler<BalloonGrenadeEntity>( 2 );
-		SetModel( "models/citizen/citizen.vmdl" );
+
+		SetModel("models/citizen/citizen.vmdl");
 		Controller = new WalkControllerBP();
 		Animator = new StandardPlayerAnimator();
 		Camera = new FirstPersonCamera();
+		RenderAlpha = 0.5f;
 		EnableAllCollisions = true;
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
-
 		Dress();
 		SupressPickupNotices = true;
 		if ( Inventory.Count() == 0 )
@@ -224,7 +222,6 @@ partial class DeathmatchPlayer : Player
 			// Note - sending this only to the attacker!
 			attacker.DidDamage( To.Single( attacker ), info.Position, info.Damage, ((float)Health).LerpInverse( 100, 0 ) );
 		}
-
 		TookDamage( To.Single( this ), info.Weapon.IsValid() ? info.Weapon.Position : info.Attacker.Position );
 	}
 

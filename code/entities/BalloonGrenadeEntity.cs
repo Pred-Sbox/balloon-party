@@ -102,7 +102,7 @@ partial class BalloonGrenadeEntity : ModelEntity
 			{
 				if ( entity is BalloonGrenadeEntity bl )
 				{
-					if ( !bl.IsActive || bl._isExploding  ) continue;
+					if ( !bl.IsActive || bl._isExploding ) continue;
 					bl.Explode();
 				}
 				else if ( entity is Player player )
@@ -113,6 +113,8 @@ partial class BalloonGrenadeEntity : ModelEntity
 					player.ApplyAbsoluteImpulse( (player.Position - Position).Normal * (ExplosionForce / 4) );
 					player.TakeDamage( dmgInfo );
 					var controller = player.Controller as WalkControllerBP;
+					// If we caught the player but they died before we could attach balloons, continue
+					if ( controller == null ) continue;
 					controller.AttachBalloons();
 					AttachBalloon( player, RenderColor );
 				}
@@ -235,7 +237,7 @@ partial class BalloonGrenadeEntity : ModelEntity
 			rope.SetEntityBone( 1, player, -1, new Transform( attachLocalPos ) );
 			rope.SetEntityAttachment( 1, player, "hat" );
 			ent.AttachRope = rope;
-			
+
 			ent.AttachJoint = PhysicsJoint.Spring
 				.From( ent.PhysicsBody )
 				.To( player.PhysicsBody )

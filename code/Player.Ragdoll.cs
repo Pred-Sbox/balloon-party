@@ -11,10 +11,12 @@ partial class DeathmatchPlayer
 	[ClientRpc]
 	void BecomeRagdollOnClient( Vector3 force, int forceBone )
 	{
+		Log.Info("creating ragdoll");
 		// TODO - lets not make everyone write this shit out all the time
 		// maybe a CreateRagdoll<T>() on ModelEntity?
 		var ent = new ModelEntity();
 		ent.Position = Position;
+		Log.Info("Ragdoll pos: " + Position);
 		ent.Rotation = Rotation;
 		ent.MoveType = MoveType.Physics;
 		ent.UsePhysicsCollision = true;

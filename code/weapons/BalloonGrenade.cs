@@ -85,7 +85,7 @@ partial class BalloonGrenade : BaseDmWeapon
 				ent.EnableDrawing = true;
 				ent.AttachTrail();
 				// TODO: Maybe owenr should be Owner?
-				ent.Owner = Local.Pawn;
+				ent.Owner = Owner;
 				ent.StartDestroy();
 			}
 

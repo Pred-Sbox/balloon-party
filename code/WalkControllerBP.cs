@@ -13,12 +13,70 @@ partial class WalkControllerBP : WalkController
 	public int AttachedBalloons => _attachedBalloons;
 	public float BalloonVelocity => 30f;
 
+	[NetPredicted]
+	private float previousZVelocity { get; set; } = 0;
+	private bool takeFallDamage = false;
 
 	bool IsTouchingLadder = false;
 	Vector3 LadderNormal;
 
+
+	public void TakeDmg()
+	{
+		using ( Prediction.Off() )
+		{
+			// TODO: Only other clients see the ragdoll when they die
+			var info = DealDamageBasedOnVelocityZ();
+			if ( info.Damage > 0 )
+				Pawn.TakeDamage( info );
+
+		}
+	}
+
+	private DamageInfo DealDamageBasedOnVelocityZ()
+	{
+		var damage = GetDamageBasedOnVelocityZ();
+		var info = DamageInfo.Generic( damage ).WithAttacker( Pawn.LastAttacker == null ? Pawn.Owner : Pawn.LastAttacker );
+		info.HitboxIndex = 1;
+		return info;
+	}
+
+	private int GetDamageBasedOnVelocityZ()
+	{
+		int damage = 0;
+		Log.Info( "Previous velocity: " + previousZVelocity );
+		if ( previousZVelocity < -2000 )
+			damage = 100;
+		if ( previousZVelocity < -1700 )
+			damage = 99;
+		else if ( previousZVelocity < -1500 )
+			damage = 80;
+		else if ( previousZVelocity < -1200 )
+			damage = 50;
+		else if ( previousZVelocity < -800 )
+			damage = 25;
+		else if ( previousZVelocity < -400 )
+			damage = 2;
+
+		return damage;
+	}
+
 	public override void Simulate()
 	{
+
+		if ( Velocity.z < 0 )
+		{
+			takeFallDamage = true;
+			previousZVelocity = Velocity.z;
+		}
+		else if ( takeFallDamage && Velocity.z == 0 )
+		{
+
+			takeFallDamage = false;
+			TakeDmg();
+
+		}
+
 		EyePosLocal = Vector3.Up * (EyeHeight * Pawn.Scale);
 		UpdateBBox();
 
