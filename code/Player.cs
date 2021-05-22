@@ -23,7 +23,7 @@ partial class DeathmatchPlayer : Player
 
 	public override void Respawn()
 	{
-		// TODO: Maybe instantiate Client Side ?
+
 		if ( grenadePooler == null )
 			grenadePooler = new ModelEntityPooler<BalloonGrenadeEntity>( 2 );
 
