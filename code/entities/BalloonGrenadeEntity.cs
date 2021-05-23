@@ -15,7 +15,12 @@ partial class BalloonGrenadeEntity : ModelEntity
 	public float ExplosionForce => 300f;
 	public float GravityScale => 0.5f;
 
+
+	// Keep track of who shot this grenade, since changing the Owner will make it simulate weird for the non-host clients
+	public Entity OwnedBy;
+
 	// Maybe network this ?
+	[Net, Predicted]
 	private TimeSince timeSince { get; set; }
 	[Net, Predicted]
 	private float timeAlive { get; set; }
@@ -49,6 +54,7 @@ partial class BalloonGrenadeEntity : ModelEntity
 		EnableDrawing = false;
 		EnableAllCollisions = false;
 		_isExploding = false;
+		Parent = null;
 		PlaySound( ExplodeSound.Name );
 		DisposeTrail();
 		if ( !PhysicsBody.IsValid() )
@@ -67,12 +73,6 @@ partial class BalloonGrenadeEntity : ModelEntity
 		PhysicsBody.AngularVelocity = Vector3.Zero;
 	}
 
-
-	// We do not want to destroy this entity if it moves to fast
-	protected override void OnPhysicsCollision( CollisionEventData eventData )
-	{
-		return;
-	}
 
 	public void Explode()
 	{
@@ -107,7 +107,8 @@ partial class BalloonGrenadeEntity : ModelEntity
 				}
 				else if ( entity is Player player )
 				{
-					var dmgInfo = DamageInfo.Explosion( Position, 0, Damage ).WithAttacker( Owner ).WithWeapon( this );
+					Log.Info("Hit player with attacker: " + Local.Pawn );
+					var dmgInfo = DamageInfo.Explosion( Position, 0, Damage ).WithAttacker( OwnedBy ).WithWeapon( this );
 
 					dmgInfo.HitboxIndex = 1;
 					player.ApplyAbsoluteImpulse( (player.Position - Position).Normal * (ExplosionForce / 4) );
@@ -197,6 +198,7 @@ partial class BalloonGrenadeEntity : ModelEntity
 	{
 		if ( !IsServer )
 			return;
+		PhysicsEnabled = true;
 		_timerStarted = true;
 		timeSince = 0;
 		timeAlive = timeSince.Relative;
@@ -249,10 +251,24 @@ partial class BalloonGrenadeEntity : ModelEntity
 				.WithMaxRestLength( 100 )
 				.WithCollisionsEnabled()
 				.Create();
-			ent.Owner = player;
+			ent.Owner = Owner;
 
 		}
 	}
+
+
+	// We do not want to destroy this entity if it moves to fast
+	protected override void OnPhysicsCollision( CollisionEventData eventData )
+	{
+		if(eventData.Entity is Player pl )
+		{
+			Explode();
+			//PhysicsEnabled = false;
+			//Parent = pl;
+		}
+		return;
+	}
+
 
 	//public void OnPostPhysicsStep( float dt )
 	//{

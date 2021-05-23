@@ -12,6 +12,8 @@ partial class BalloonEntity : Prop, IPhysicsUpdate
 	public PhysicsJoint AttachJoint;
 	public Particles AttachRope;
 	public WalkControllerBP attachedTo;
+	// The height at which the balloons will be destroyed
+	private float MaxZHeight => 2200f;
 	private static float GravityScale => -1;
 
 	public override void Spawn()
@@ -57,6 +59,8 @@ partial class BalloonEntity : Prop, IPhysicsUpdate
 		var body = PhysicsBody;
 		if ( !body.IsValid() )
 			return;
+		if(Position.z > MaxZHeight )
+			TakeDamage(DamageInfo.Generic(100));
 
 		body.GravityScale = GravityScale;
 	}

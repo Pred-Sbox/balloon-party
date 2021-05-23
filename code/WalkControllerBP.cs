@@ -13,7 +13,8 @@ partial class WalkControllerBP : WalkController
 	public int AttachedBalloons => _attachedBalloons;
 	public float BalloonVelocity => 30f;
 
-	[Net, Predicted]
+	// Maybe Predicted instead of local
+	[Net, Local]
 	private float previousZVelocity { get; set; } = 0;
 	private bool takeFallDamage = false;
 
@@ -25,7 +26,6 @@ partial class WalkControllerBP : WalkController
 	{
 		using ( Prediction.Off() )
 		{
-			// TODO: Only other clients see the ragdoll when they die
 			var info = DealDamageBasedOnVelocityZ();
 			if ( info.Damage > 0 )
 				Pawn.TakeDamage( info );
@@ -35,8 +35,9 @@ partial class WalkControllerBP : WalkController
 
 	private DamageInfo DealDamageBasedOnVelocityZ()
 	{
+		Log.Info("My last attacker: " + Pawn.LastAttacker );
 		var damage = GetDamageBasedOnVelocityZ();
-		var info = DamageInfo.Generic( damage ).WithAttacker( Pawn.LastAttacker == null ? Pawn.Owner : Pawn.LastAttacker );
+		var info = DamageInfo.Generic( damage ).WithAttacker( Pawn.LastAttacker );
 		info.HitboxIndex = 1;
 		return info;
 	}
@@ -56,7 +57,7 @@ partial class WalkControllerBP : WalkController
 			damage = 25;
 		else if ( previousZVelocity < -400 )
 			damage = 2;
-		
+
 		return damage;
 	}
 
