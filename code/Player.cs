@@ -27,7 +27,15 @@ partial class DeathmatchPlayer : Player
 		if ( grenadePooler == null )
 			grenadePooler = new ModelEntityPooler<BalloonGrenadeEntity>( 2 );
 
-		SetModel("models/citizen/citizen.vmdl");
+		//var rand = Rand.Int( 1 );
+		//if ( rand == 0 )
+		//{
+		SetModel( "models/citizen/citizen.vmdl" );
+		//} else
+		//{
+		//	Log.Info("Clown");
+		//	SetModel( "models/citizen_clown/citizen.vmdl" );
+		//}
 		Controller = new WalkControllerBP();
 		Animator = new StandardPlayerAnimator();
 		Camera = new FirstPersonCamera();

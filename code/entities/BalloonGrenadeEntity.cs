@@ -17,11 +17,11 @@ partial class BalloonGrenadeEntity : ModelEntity
 
 	// Maybe network this ?
 	private TimeSince timeSince { get; set; }
-	[NetPredicted]
+	[Net, Predicted]
 	private float timeAlive { get; set; }
-	[NetPredicted]
+	[Net, Predicted]
 	private bool _isExploding { get; set; }
-	[NetPredicted]
+	[Net, Predicted]
 	private bool _timerStarted { get; set; }
 	private Particles trail { get; set; }
 

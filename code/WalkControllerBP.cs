@@ -13,7 +13,7 @@ partial class WalkControllerBP : WalkController
 	public int AttachedBalloons => _attachedBalloons;
 	public float BalloonVelocity => 30f;
 
-	[NetPredicted]
+	[Net, Predicted]
 	private float previousZVelocity { get; set; } = 0;
 	private bool takeFallDamage = false;
 
@@ -44,7 +44,6 @@ partial class WalkControllerBP : WalkController
 	private int GetDamageBasedOnVelocityZ()
 	{
 		int damage = 0;
-		Log.Info( "Previous velocity: " + previousZVelocity );
 		if ( previousZVelocity < -2000 )
 			damage = 100;
 		if ( previousZVelocity < -1700 )
@@ -57,13 +56,13 @@ partial class WalkControllerBP : WalkController
 			damage = 25;
 		else if ( previousZVelocity < -400 )
 			damage = 2;
-
+		
 		return damage;
 	}
 
 	public override void Simulate()
 	{
-
+		// Do fall damage stufftw
 		if ( Velocity.z < 0 )
 		{
 			takeFallDamage = true;

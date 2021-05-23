@@ -15,16 +15,16 @@ partial class BaseDmWeapon : BaseWeapon, IRespawnableEntity
 	public virtual int Bucket => 1;
 	public virtual int BucketWeight => 100;
 
-	[NetPredicted]
+	[Net, Predicted]
 	public int AmmoClip { get; set; }
 
-	[NetPredicted]
+	[Net, Predicted]
 	public TimeSince TimeSinceReload { get; set; }
 
-	[NetPredicted]
+	[Net, Predicted]
 	public bool IsReloading { get; set; }
 
-	[NetPredicted]
+	[Net, Predicted]
 	public TimeSince TimeSinceDeployed { get; set; }
 
 
